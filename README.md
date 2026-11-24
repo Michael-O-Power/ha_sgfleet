@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SG Fleet Novated Leasing (mySG) for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
@@ -94,3 +95,7 @@ action:
         {{ states('sensor.your_vehicle_registration_expiry') }}
         ({{ states('sensor.your_vehicle_registration_days_remaining') }} days remaining).
 ```
+=======
+# ha_sgfleet
+Home Assistant integration for SG Fleet novated leased vehicles
+>>>>>>> 2b547356b5834f54ed2d356a36a65a7924f28050
