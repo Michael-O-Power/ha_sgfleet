@@ -1,0 +1,199 @@
+submit_home_charging_claim:
+  name: Submit EV Home Charging Claim
+  description: >-
+    Calculate and submit an ATO PCG EV home charging reimbursement claim to SG Fleet mySG
+    using start/end dates and odometer readings (no receipt upload required).
+  fields:
+    device_id:
+      name: Vehicle Device
+      description: SG Fleet vehicle device (optional if you only have one novated lease vehicle).
+      selector:
+        device:
+          integration: sgfleet
+    vehicle_guid:
+      name: Vehicle GUID
+      description: Explicit SG Fleet Vehicle GUID (optional if only one vehicle or device_id is set).
+      selector:
+        text:
+    start_date:
+      name: Start Date
+      description: Start date of the home charging claim period (must be in the same FBT year as End Date).
+      required: true
+      selector:
+        date:
+    end_date:
+      name: End Date
+      description: End date of the home charging claim period (must be after Start Date and in the same FBT year).
+      required: true
+      selector:
+        date:
+    start_odometer:
+      name: Start Odometer (km)
+      description: Vehicle odometer reading at the start date.
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 999999
+          step: 1
+          unit_of_measurement: km
+          mode: box
+    end_odometer:
+      name: End Odometer (km)
+      description: Vehicle odometer reading at the end date (optional if odometer_entity_id or default option is set).
+      selector:
+        number:
+          min: 1
+          max: 999999
+          step: 1
+          unit_of_measurement: km
+          mode: box
+    odometer_entity_id:
+      name: Odometer Sensor Entity
+      description: Home Assistant sensor to read the current end odometer from (e.g. sensor.byd_atto_3_odometer).
+      selector:
+        entity:
+          domain: sensor
+    confirm_ato_declaration:
+      name: Confirm ATO PCG Declaration
+      description: >-
+        Must be enabled to attest that the kilometres travelled, residential electricity account,
+        and non-duplication of commercial charging claims satisfy SG Fleet & ATO PCG requirements.
+      default: false
+      selector:
+        boolean:
+    dry_run:
+      name: Dry Run (Preview Only)
+      description: Validate FBT year rules and return the calculated AUD claim amount without submitting.
+      default: false
+      selector:
+        boolean:
+
+submit_reimbursement_claim:
+  name: Submit Reimbursement Claim (With Receipt)
+  description: >-
+    Upload one or more tax invoice/receipt files and submit a novated lease reimbursement claim
+    to SG Fleet mySG.
+  fields:
+    device_id:
+      name: Vehicle Device
+      description: SG Fleet vehicle device (optional if you only have one novated lease vehicle).
+      selector:
+        device:
+          integration: sgfleet
+    vehicle_guid:
+      name: Vehicle GUID
+      description: Explicit SG Fleet Vehicle GUID (optional if only one vehicle or device_id is set).
+      selector:
+        text:
+    category:
+      name: Expense Category
+      description: SG Fleet reimbursement expense category.
+      required: true
+      selector:
+        select:
+          options:
+            - label: Commercial EV Charging
+              value: commercialcharging
+            - label: Service & Maintenance
+              value: serviceandmaintenance
+            - label: Tyres
+              value: tyres
+            - label: Car Wash
+              value: carwash
+            - label: Registration
+              value: registration
+            - label: NSW CTP Insurance
+              value: nswctp
+            - label: Fuel
+              value: fuel
+            - label: Comprehensive Insurance
+              value: insurance
+            - label: Insurance Excess
+              value: insuranceexcess
+    amount:
+      name: Claim Amount (AUD)
+      description: Total reimbursement amount in AUD (max $50,000).
+      required: true
+      selector:
+        number:
+          min: 0.01
+          max: 50000
+          step: 0.01
+          unit_of_measurement: AUD
+          mode: box
+    receipt_files:
+      name: Receipt File Paths
+      description: List of local file paths (must be inside Home Assistant's allowlist_external_dirs).
+      required: true
+      selector:
+        object:
+    confirm_declaration:
+      name: Confirm General Declaration
+      description: Must be enabled to confirm receipts are valid and bank details in mySG are current.
+      default: false
+      selector:
+        boolean:
+    dry_run:
+      name: Dry Run (Validate Only)
+      description: Validate files and parameters without uploading or submitting.
+      default: false
+      selector:
+        boolean:
+
+register_odometer_reading:
+  name: Register Odometer Reading
+  description: Push a vehicle odometer reading to SG Fleet and immediately refresh that vehicle's record.
+  fields:
+    device_id:
+      name: Vehicle Device
+      description: SG Fleet vehicle device (optional if you only have one novated lease vehicle).
+      selector:
+        device:
+          integration: sgfleet
+    vehicle_guid:
+      name: Vehicle GUID
+      description: Explicit SG Fleet Vehicle GUID.
+      selector:
+        text:
+    odometer:
+      name: Odometer Reading (km)
+      description: Current odometer value in km (optional if odometer_entity_id or default option is set).
+      selector:
+        number:
+          min: 1
+          max: 999999
+          step: 1
+          unit_of_measurement: km
+          mode: box
+    odometer_entity_id:
+      name: Odometer Sensor Entity
+      description: Home Assistant sensor to read the odometer value from.
+      selector:
+        entity:
+          domain: sensor
+    reading_date:
+      name: Reading Date
+      description: Date of the odometer reading (defaults to today).
+      selector:
+        date:
+
+refresh_data:
+  name: Refresh SG Fleet Data
+  description: Trigger an immediate refresh of all or a specific SG Fleet data tier (bypasses quiet hours).
+  fields:
+    tier:
+      name: Data Tier
+      description: Which SG Fleet data class to refresh immediately.
+      default: all
+      selector:
+        select:
+          options:
+            - label: All Tiers
+              value: all
+            - label: Reimbursements & Claim Status
+              value: reimbursements
+            - label: Balances & Transactions
+              value: balances
+            - label: Vehicle, Lease & Contract Details
+              value: details

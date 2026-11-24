@@ -1,0 +1,67 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect SG Fleet Novated Leasing (mySG)",
+        "description": "Choose how to authenticate with your SG Fleet mySG account.",
+        "data": {
+          "auth_method": "Authentication Method"
+        }
+      },
+      "credentials": {
+        "title": "Sign in to SG Fleet mySG",
+        "description": "Enter your mySG email address and password. If your account uses MFA or Auth0 presents a CAPTCHA, setup will automatically switch to Browser Sign-In.",
+        "data": {
+          "email": "Email Address",
+          "password": "Password"
+        }
+      },
+      "browser_pkce": {
+        "title": "Browser Sign-In (PKCE)",
+        "description": "1. Open this SG Fleet sign-in link in your browser:\n\n{auth_url}\n\n2. Sign in to mySG (including any MFA or CAPTCHA).\n3. After sign-in, copy the full redirected URL (`https://mysg.sgfleet.com/?code=...&state=...`) from your browser's address bar and paste it below.",
+        "data": {
+          "callback_url": "Redirected Callback URL (or Authorization Code)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate SG Fleet mySG",
+        "description": "Your SG Fleet session has expired. Choose how you would like to sign back in.",
+        "data": {
+          "auth_method": "Authentication Method"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to SG Fleet. Check your network and try again.",
+      "invalid_auth": "Authentication failed. Please check your credentials or sign in via Browser Sign-In.",
+      "invalid_callback": "Could not extract a valid authorization code from the pasted URL.",
+      "captcha_required": "Auth0 requested a CAPTCHA challenge. Please complete sign-in in your browser and paste the redirected URL below.",
+      "mfa_required": "Multi-factor authentication is required. Please complete sign-in in your browser and paste the redirected URL below.",
+      "unknown": "Unexpected error communicating with SG Fleet."
+    },
+    "abort": {
+      "already_configured": "This SG Fleet account is already configured.",
+      "reauth_successful": "SG Fleet re-authentication succeeded."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SG Fleet Integration Options",
+        "description": "Configure independent update intervals per data tier (with automatic ±15% jitter) and active polling hours to keep SG Fleet traffic low-profile.",
+        "data": {
+          "reimbursements_interval_hours": "Reimbursements & Claims Interval (hours)",
+          "reimbursements_smart_mode": "Smart Reimbursements Mode (slow down to Balances interval when no claims are pending)",
+          "balances_interval_hours": "Balances & Transactions Interval (hours)",
+          "details_interval_hours": "Vehicle, Lease & Contract Details Interval",
+          "active_hours_enabled": "Restrict Scheduled Polling to Active Hours",
+          "active_hours_start": "Active Hours Start",
+          "active_hours_end": "Active Hours End",
+          "rego_warning_days": "Registration Expiry Warning Threshold (days)",
+          "linked_vehicle_device_id": "Linked Vehicle Device (links SG Fleet lease CI to your car integration)",
+          "odometer_entity_id": "Linked Odometer Sensor (optional — auto-detected from linked vehicle if left blank)"
+        }
+      }
+    }
+  }
+}
