@@ -29,9 +29,6 @@ A custom Home Assistant integration for **SG Fleet Novated Leasing (Australia �
   - **Vehicle, Lease & Contract Details** (default `Weekly / 7 days`, configurable `Never (startup & manual only)` up to `Monthly`).
   - Automatic **±15% randomised jitter** and configurable **Active Hours** (default `07:00–21:00` local time) so Home Assistant never polls SG Fleet overnight or on exact clockwork boundaries.
 - **Home Assistant Actions (Services)**
-  - `sgfleet.submit_home_charging_claim`: Validate FBT year boundaries, calculate ATO PCG EV home charging reimbursement (`km × rate`), preview (`dry_run: true`), or submit directly to mySG using your HA odometer sensor (immediately refreshes Reimbursements & Balances).
-  - `sgfleet.submit_reimbursement_claim`: Upload tax invoices/receipts and submit reimbursement claims for commercial charging, servicing, tyres, car wash, registration, CTP, etc.
-  - `sgfleet.register_odometer_reading`: Push a vehicle odometer reading to SG Fleet and immediately refresh that vehicle's record.
   - `sgfleet.refresh_data`: Trigger an immediate refresh of `all`, `reimbursements`, `balances`, or `details` (bypasses quiet hours).
 
 ---
@@ -95,7 +92,4 @@ action:
         {{ states('sensor.your_vehicle_registration_expiry') }}
         ({{ states('sensor.your_vehicle_registration_days_remaining') }} days remaining).
 ```
-=======
-# ha_sgfleet
-Home Assistant integration for SG Fleet novated leased vehicles
->>>>>>> 2b547356b5834f54ed2d356a36a65a7924f28050
+
