@@ -579,9 +579,10 @@ class SgfleetApiClient:
         extra_headers: dict[str, str] | None = None,
         allow_404_none: bool = False,
     ) -> Any:
-        """Execute an authenticated request to api.sgfleet.com with automatic 401 retry."""
+        """Execute an authenticated request to api.sgfleet.com with automatic 401/transient retry."""
+        force_auth_refresh = False
         for attempt in range(2):
-            session_id = await self.ensure_session(force_refresh=(attempt > 0))
+            session_id = await self.ensure_session(force_refresh=force_auth_refresh)
             headers = {
                 "Accept": "application/json, image/png, image/*",
                 "Authorization": f"Bearer {session_id}",
@@ -603,6 +604,11 @@ class SgfleetApiClient:
                     if resp.status == 401 and attempt == 0:
                         _LOGGER.debug("SG Fleet API returned 401 for %s; refreshing session", url)
                         self.tokens.session_id = None
+                        force_auth_refresh = True
+                        continue
+                    if resp.status in (499, 502, 503, 504) and attempt == 0:
+                        _LOGGER.debug("SG Fleet API transient HTTP %s for %s; retrying once", resp.status, url)
+                        await asyncio.sleep(1.0)
                         continue
                     if resp.status in (401, 403):
                         raise SgfleetAuthError(f"SG Fleet API authorization failed (HTTP {resp.status}) for {url}")

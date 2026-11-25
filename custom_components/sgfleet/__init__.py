@@ -81,7 +81,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: SgfleetConfigEntry) -> b
     _async_sync_linked_vehicle_devices(hass, entry, coordinator)
     await async_register_services(hass)
 
-    entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
+    # Snapshot current options so background token rotations (entry.data updates)
+    # do NOT trigger an integration reload and cancel in-flight API requests.
+    last_options = dict(entry.options)
+
+    async def _async_options_updated(
+        hass_inner: HomeAssistant, updated_entry: SgfleetConfigEntry
+    ) -> None:
+        nonlocal last_options
+        new_options = dict(updated_entry.options)
+        if new_options != last_options:
+            last_options = new_options
+            await hass_inner.config_entries.async_reload(updated_entry.entry_id)
+
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
     return True
 
 
@@ -115,11 +128,6 @@ def _async_sync_linked_vehicle_devices(
 
         if sg_device.via_device_id != desired_via_id:
             dev_reg.async_update_device(sg_device.id, via_device_id=desired_via_id)
-
-
-async def _async_reload_entry(hass: HomeAssistant, entry: SgfleetConfigEntry) -> None:
-    """Reload config entry when options change."""
-    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: SgfleetConfigEntry) -> bool:

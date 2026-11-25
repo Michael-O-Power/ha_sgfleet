@@ -37,6 +37,7 @@ async def async_setup_entry(
                     # Disabled: PUT /au-vehicle/v1.0/vehicles/{VehicleGuid}/odometer is not used
                     # by the mySG driver portal and returns HTTP 500 for novated accounts.
                     # SgfleetSubmitOdometerButton(coordinator, vehicle_guid),
+                    SgfleetReauthButton(coordinator, vehicle_guid),
                     SgfleetRefreshButton(
                         coordinator,
                         vehicle_guid,
@@ -129,6 +130,35 @@ async def async_setup_entry(
 #             raise HomeAssistantError(f"Failed submitting odometer reading to SG Fleet: {err}") from err
 #
 #         await self.coordinator.async_refresh_vehicle(self._vehicle_guid)
+
+
+class SgfleetReauthButton(SgfleetVehicleEntity, ButtonEntity):
+    """Button that starts Home Assistant's interactive SG Fleet re-authentication flow."""
+
+    _attr_translation_key = "log_back_in"
+    _attr_name = "Log Back In"
+    _attr_icon = "mdi:login"
+
+    def __init__(
+        self,
+        coordinator: SgfleetDataUpdateCoordinator,
+        vehicle_guid: str,
+    ) -> None:
+        super().__init__(
+            coordinator,
+            vehicle_guid,
+            "log_back_in",
+            device_group="vehicle",
+        )
+
+    @property
+    def available(self) -> bool:
+        """Keep Log Back In clickable even if SG Fleet polling or auth has failed."""
+        return True
+
+    async def async_press(self) -> None:
+        """Trigger the native Home Assistant reauth flow for this SG Fleet account."""
+        self.coordinator.config_entry.async_start_reauth(self.hass)
 
 
 class SgfleetRefreshButton(SgfleetVehicleEntity, ButtonEntity):

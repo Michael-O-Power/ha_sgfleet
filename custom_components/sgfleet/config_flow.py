@@ -275,17 +275,31 @@ class SgfleetConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if self._reauth_entry is not None:
             # Preserve existing options and update credentials/tokens
+            abort_reason = (
+                "reconfigure_successful"
+                if self.source == "reconfigure"
+                else "reauth_successful"
+            )
             self.hass.config_entries.async_update_entry(
                 self._reauth_entry,
                 data={**self._reauth_entry.data, **entry_data},
             )
             await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
-            return self.async_abort(reason="reauth_successful")
+            return self.async_abort(reason=abort_reason)
 
         await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured()
 
         return self.async_create_entry(title=f"SG Fleet ({title})", data=entry_data)
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Allow the user to log back in or switch authentication method at any time."""
+        self._reauth_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        return await self.async_step_reauth_confirm(user_input)
 
     async def async_step_reauth(
         self, entry_data: Mapping[str, Any]

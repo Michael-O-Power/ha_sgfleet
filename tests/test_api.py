@@ -436,3 +436,26 @@ async def test_receipt_upload_and_odometer_put() -> None:
         "odometerReading": 25321,
         "readingDate": "2026-11-24T00:00:00.000Z",
     }
+
+
+async def test_transient_499_retries_once_and_succeeds() -> None:
+    future_exp = int(time.time()) + 3600
+    session = _MockSession(
+        [
+            _MockResponse(url=f"{API_VEHICLE_BASE}/vehicles/novated", status=499, text_data=""),
+            _MockResponse(
+                url=f"{API_VEHICLE_BASE}/vehicles/novated",
+                status=200,
+                json_data={"result": [{"vehicleGuid": "veh-1"}]},
+            ),
+        ]
+    )
+    client = SgfleetApiClient(session)  # type: ignore[arg-type]
+    client.tokens.session_id = "VALID_SESS"
+    client.tokens.session_expires_at = future_exp
+
+    with patch("custom_components.sgfleet.api.asyncio.sleep", return_value=None):
+        vehicles = await client.get_novated_vehicles()
+    assert len(vehicles) == 1
+    assert vehicles[0]["vehicleGuid"] == "veh-1"
+    assert len(session.calls) == 2

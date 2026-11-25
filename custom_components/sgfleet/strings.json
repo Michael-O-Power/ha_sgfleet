@@ -41,7 +41,8 @@
     },
     "abort": {
       "already_configured": "This SG Fleet account is already configured.",
-      "reauth_successful": "SG Fleet re-authentication succeeded."
+      "reauth_successful": "SG Fleet re-authentication succeeded.",
+      "reconfigure_successful": "SG Fleet sign-in updated successfully."
     }
   },
   "options": {
